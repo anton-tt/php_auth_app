@@ -56,6 +56,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit">Зарегистрироваться</button>
     </form>
-
 </body>
 </html>
