@@ -1,5 +1,36 @@
 <?php 
 
+require __DIR__ . '/../config/db.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $login = $_POST['login'];
+    $password = $_POST['password'];
+}
+
+if (empty($login) || empty($password)) {
+        echo "Все поля обязательны для заполнения!";
+        exit;
+}
+
+$stmt = $pdo->prepare(
+        "SELECT * FROM users WHERE email = ? OR phone = ?"
+    );
+$stmt->execute([$login, $login]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    echo "Пользователь с таким логином не найден!";
+    exit;
+}
+
+if ($user['password'] !== $password) {
+    echo "Неверный пароль!";
+    exit;
+}
+
+echo "Авторизация прошла успешно!";
+    exit;
+
 ?>
 
 <!DOCTYPE html>
