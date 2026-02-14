@@ -5,31 +5,31 @@ require __DIR__ . '/../config/db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = $_POST['login'];
     $password = $_POST['password'];
-}
 
-if (empty($login) || empty($password)) {
+    if (empty($login) || empty($password)) {
         echo "Все поля обязательны для заполнения!";
         exit;
-}
+    }
 
-$stmt = $pdo->prepare(
+    $stmt = $pdo->prepare(
         "SELECT * FROM users WHERE email = ? OR phone = ?"
     );
-$stmt->execute([$login, $login]);
-$user = $stmt->fetch();
+    $stmt->execute([$login, $login]);
+    $user = $stmt->fetch();
 
-if (!$user) {
-    echo "Пользователь с таким логином не найден!";
+    if (!$user) {
+        echo "Пользователь с таким логином не найден!";
+        exit;
+    }
+
+    if ($user['password'] !== $password) {
+        echo "Неверный пароль!";
+        exit;
+    }
+
+    echo "Авторизация прошла успешно!";
     exit;
 }
-
-if ($user['password'] !== $password) {
-    echo "Неверный пароль!";
-    exit;
-}
-
-echo "Авторизация прошла успешно!";
-    exit;
 
 ?>
 
@@ -38,16 +38,16 @@ echo "Авторизация прошла успешно!";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авторизация</title>
+    <title>Авторизация пользователя</title>
 </head>
 <body>
    <h2>Вход</h2>
    <form method="POST">
-        <label>Телефон или эл.почта:</label>
-        <input type="text" name="login" required><br><br>
+        <label for="login">Телефон или эл.почта:</label>
+        <input type="text" id="login" name="login" required><br><br>
 
-        <label>Пароль:</label>
-        <input type="password" name="password" required><br><br>
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required><br><br>
 
         <button type="submit">Войти</button>
     </form> 

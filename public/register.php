@@ -40,20 +40,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <h2>Регистрация</h2>
     <form method="POST">
-        <label>Имя:</label>
-        <input type="text" name="name" required><br><br>
+        <label for="name">Имя:</label>
+        <input type="text" id="name" name="name" required><br><br>
 
-        <label>Телефон:</label>
-        <input type="text" name="phone" required><br><br>
+        <label for="phone">Телефон:</label>
+        <input type="text" id="phone" name="phone" required><br><br>
 
-        <label>Email:</label>
-        <input type="email" name="email" required><br><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
 
-        <label>Пароль:</label>
-        <input type="password" name="password" required><br><br>
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required><br><br>
 
-        <label>Повторите пароль:</label>
-        <input type="password" name="password_confirm" required><br><br>
+        <label for="password_confirm">Повторите пароль:</label>
+        <input type="password" id="password_confirm" name="password_confirm" required><br><br>
 
         <button type="submit">Зарегистрироваться</button>
     </form>
