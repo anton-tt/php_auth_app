@@ -6,13 +6,33 @@ if ($isNotAuthorized) {
     echo "Вы не авторизованы!";
     exit;
 }
+$userId = $_SESSION['user_id'];
 
 require __DIR__ . '/../config/db.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['update_profile'])) {
+        $name = $_POST['name'];
+        $phone = $_POST['phone'];
+        $email = $_POST['email']; 
+
+        if (empty($name) || empty($phone) || empty($email)) {
+            echo "Все поля обязательны для заполнения!";
+            exit;
+        }
+
+        $stmt = $pdo->prepare(
+            "UPDATE users SET name = ?, phone = ?, email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+        );
+        $stmt->execute([$name, $phone, $email, $userId]);
+        echo "Данные сохранены!";
+    }
+}
 
 $stmt = $pdo->prepare(
         "SELECT name, email, phone, password FROM users WHERE id = ?"
 );
-$stmt->execute([$_SESSION['user_id']]);
+$stmt->execute([$userId]);
 $user = $stmt->fetch();
 
 if (!$user) {
