@@ -22,9 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $pdo->prepare(
         "INSERT INTO users (name, phone, email,  password) VALUES (?, ?, ?, ?)"
     );
-
     $stmt->execute([$name, $phone, $email, $password]);
-
     echo "Данные отправлены!";
 }
 

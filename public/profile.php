@@ -6,8 +6,24 @@ if ($isNotAuthorized) {
     echo "Вы не авторизованы!";
     exit;
 }
-echo "Вы авторизованы. Ваш ID: " . $_SESSION['user_id'];
 
+require __DIR__ . '/../config/db.php';
+
+$stmt = $pdo->prepare(
+        "SELECT name, email, phone, password FROM users WHERE id = ?"
+);
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    echo "Пользователь не найден!";
+    exit;
+}
+
+$name = $user['name'];
+$phone = $user['phone'];
+$email = $user['email'];
+$password = $user['password'];
 ?>
 
 <!DOCTYPE html>
@@ -23,13 +39,16 @@ echo "Вы авторизованы. Ваш ID: " . $_SESSION['user_id'];
     <h3>Личные данные</h3>
     <form method="POST">
         <label for="name">Имя:</label>
-        <input type="text" id="name" name="name" required><br><br>
+        <input type="text" id="name" name="name" 
+            value="<?= htmlspecialchars($name) ?>" required><br><br>
 
         <label for="phone">Телефон:</label>
-        <input type="text" id="phone" name="phone" required><br><br>
+        <input type="text" id="phone" name="phone" 
+            value="<?= htmlspecialchars($phone) ?>" required><br><br>
 
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
+        <input type="email" id="email" name="email" 
+            value="<?= htmlspecialchars($email) ?>" required><br><br>
 
         <button type="submit" name="update_profile">Сохранить данные</button>
     </form>
@@ -37,7 +56,8 @@ echo "Вы авторизованы. Ваш ID: " . $_SESSION['user_id'];
     <h3>Пароль</h3>
     <form method="POST">
         <label for="current_password">Текущий пароль:</label>
-        <input type="password" id="current_password" name="current_password" required><br><br>
+        <input type="password" id="current_password" name="current_password" 
+            value="<?= htmlspecialchars($password) ?>" required><br><br>
 
         <label for="new_password">Новый пароль:</label>
         <input type="password" id="new_password" name="new_password" required><br><br>
