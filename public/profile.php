@@ -1,4 +1,12 @@
 <?php 
+session_start();
+
+$isNotAuthorized = !isset($_SESSION['user_id']);
+if ($isNotAuthorized) {
+    echo "Вы не авторизованы!";
+    exit;
+}
+echo "Вы авторизованы. Ваш ID: " . $_SESSION['user_id'];
 
 ?>
 
