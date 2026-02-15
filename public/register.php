@@ -7,14 +7,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = $_POST['phone'];
     $email = $_POST['email'];
     $password = $_POST['password'];
-    $passwordConfirm = $_POST['password_confirm'];
+    $confirmPassword = $_POST['password_confirm'];
 
-    if (empty($name) || empty($phone) || empty($email) || empty($password) || empty($passwordConfirm)) {
+    if (empty($name) || empty($phone) || empty($email) || empty($password) || empty($confirmPassword)) {
         echo "Все поля обязательны для заполнения!";
         exit;
     }
 
-    if ($password !== $passwordConfirm) {
+    if ($password !== $confirmPassword) {
         echo "Пароли не совпадают!";
         exit;
     }

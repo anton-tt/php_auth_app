@@ -27,10 +27,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$name, $phone, $email, $userId]);
         echo "Данные сохранены!";
     }
+
+    if (isset($_POST['update_password'])) {
+        $currentPassword = $_POST['current_password'];
+        $newPassword = $_POST['new_password'];
+        $confirmPassword = $_POST['confirm_new_password']; 
+
+        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+            echo "Все поля обязательны для заполнения!";
+            exit;
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            echo "Пароли не совпадают!";
+            exit;
+        }
+
+        $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch();
+        if ($currentPassword !== $user['password']) {
+            echo "Неверно введён действующий пароль!";
+            exit;
+        }
+
+        $stmt = $pdo->prepare(
+            "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+        );
+        $stmt->execute([$newPassword, $userId]);
+        echo "Пароль успешно изменён!";
+
+    }
 }
 
 $stmt = $pdo->prepare(
-        "SELECT name, email, phone, password FROM users WHERE id = ?"
+        "SELECT name, email, phone FROM users WHERE id = ?"
 );
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
@@ -43,7 +74,6 @@ if (!$user) {
 $name = $user['name'];
 $phone = $user['phone'];
 $email = $user['email'];
-$password = $user['password'];
 ?>
 
 <!DOCTYPE html>
@@ -76,8 +106,7 @@ $password = $user['password'];
     <h3>Пароль</h3>
     <form method="POST">
         <label for="current_password">Текущий пароль:</label>
-        <input type="password" id="current_password" name="current_password" 
-            value="<?= htmlspecialchars($password) ?>" required><br><br>
+        <input type="password" id="current_password" name="current_password" required><br><br>
 
         <label for="new_password">Новый пароль:</label>
         <input type="password" id="new_password" name="new_password" required><br><br>
