@@ -9,6 +9,10 @@ if (isset($_GET['login']) && $_GET['login'] === 'success') {
     echo "<p>Вы вошли в аккаунт!</p>";
 }
 
+if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
+    echo "<p>Вы вышли из аккаунта!</p>";
+}
+
 $isAuthorized = isset($_SESSION['user_id']);
 
 ?>
