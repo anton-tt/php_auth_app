@@ -14,10 +14,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_profile'])) {
         $name = $_POST['name'];
         $phone = $_POST['phone'];
-        $email = $_POST['email']; 
+        $email = $_POST['email'];
 
         if (empty($name) || empty($phone) || empty($email)) {
             echo "Все поля обязательны для заполнения!";
+            exit;
+        }
+
+        $stmt = $pdo->prepare(
+            "SELECT id FROM users WHERE (email = ? OR phone = ?) AND id != ?"
+        );
+        $stmt->execute([$email, $phone, $userId]);
+        $existingUser = $stmt->fetch();
+        if ($existingUser) {
+            echo "Пользователь с таким email или телефоном уже существует!";
             exit;
         }
 
@@ -46,6 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
+        if (!$user) {
+            echo "Пользователь не найден!";
+            exit;
+        }
         if ($currentPassword !== $user['password']) {
             echo "Неверно введён действующий пароль!";
             exit;
