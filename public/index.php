@@ -1,19 +1,20 @@
 <?php
 session_start();
+$isAuthorized = isset($_SESSION['user_id']);
+
+$message = null;
 
 if (isset($_GET['register']) && $_GET['register'] === 'success') {
-    echo "<p>Регистрация прошла успешно!</p>";
+    $message = "Регистрация прошла успешно!";
 }
 
 if (isset($_GET['login']) && $_GET['login'] === 'success') {
-    echo "<p>Вы вошли в аккаунт!</p>";
+    $message = "Выполнен вход в аккаунт!";
 }
 
 if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
-    echo "<p>Вы вышли из аккаунта!</p>";
+    $message = "Осуществлён выход из аккаунта!";
 }
-
-$isAuthorized = isset($_SESSION['user_id']);
 
 ?>
 
@@ -28,6 +29,12 @@ $isAuthorized = isset($_SESSION['user_id']);
     <h1>
        <a href="index.php">Главная страница</a> 
     </h1>
+
+    <?php if ($message): ?>
+        <p>
+            <?= htmlspecialchars($message) ?>
+        </p>
+    <?php endif; ?>
 
     <?php if (!$isAuthorized): ?>
         <p>
