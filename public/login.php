@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    if ($user['password'] !== $password) {
+    if (!password_verify($password, $user['password'])) {
         echo "Неверный пароль!";
         exit;
     }

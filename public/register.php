@@ -13,16 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Все поля обязательны для заполнения!";
         exit;
     }
-
     if ($password !== $confirmPassword) {
         echo "Пароли не совпадают!";
         exit;
     }
-
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    
     $stmt = $pdo->prepare(
         "INSERT INTO users (name, phone, email,  password) VALUES (?, ?, ?, ?)"
     );
-    $stmt->execute([$name, $phone, $email, $password]);
+    $stmt->execute([$name, $phone, $email, $hashedPassword]);
     echo "Данные сохранены!";
 }
 

@@ -60,15 +60,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "Пользователь не найден!";
             exit;
         }
-        if ($currentPassword !== $user['password']) {
+        if (!password_verify($currentPassword, $user['password'])) {
             echo "Неверно введён действующий пароль!";
             exit;
         }
+        $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
         $stmt = $pdo->prepare(
             "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
         );
-        $stmt->execute([$newPassword, $userId]);
+        $stmt->execute([$hashedNewPassword, $userId]);
         echo "Пароль успешно изменён!";
 
     }
