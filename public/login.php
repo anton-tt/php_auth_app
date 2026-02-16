@@ -3,35 +3,31 @@ session_start();
 
 require __DIR__ . '/../config/db.php';
 
+$error = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = $_POST['login'];
     $password = $_POST['password'];
 
     if (empty($login) || empty($password)) {
-        echo "Все поля обязательны для заполнения!";
-        exit;
+        $error = "Все поля обязательны для заполнения!";
+    } else {
+        $stmt = $pdo->prepare(
+            "SELECT * FROM users WHERE email = ? OR phone = ?"
+        );
+        $stmt->execute([$login, $login]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            $error = "Пользователь с таким логином не найден!";
+        } elseif (!password_verify($password, $user['password'])) {
+            $error = "Неверный пароль!";
+        } else {
+            $_SESSION['user_id'] = $user['id'];
+            header("Location: /index.php?login=success");
+            exit;
+        }
     }
-
-    $stmt = $pdo->prepare(
-        "SELECT * FROM users WHERE email = ? OR phone = ?"
-    );
-    $stmt->execute([$login, $login]);
-    $user = $stmt->fetch();
-
-    if (!$user) {
-        echo "Пользователь с таким логином не найден!";
-        exit;
-    }
-
-    if (!password_verify($password, $user['password'])) {
-        echo "Неверный пароль!";
-        exit;
-    }
-
-    $_SESSION['user_id'] = $user['id'];
-    
-    header("Location: /index.php?login=success");
-    exit;
 }
 
 ?>
@@ -45,6 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
    <h2>Вход</h2>
+
+    <?php if ($error): ?>
+        <p>
+            <?= htmlspecialchars($error) ?>
+        </p>
+    <?php endif; ?>
+
    <form method="POST">
         <label for="login">Телефон или эл.почта:</label>
         <input type="text" id="login" name="login" required><br><br>
