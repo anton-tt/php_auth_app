@@ -1,11 +1,6 @@
 <?php 
 session_start();
 
-$isNotAuthorized = !isset($_SESSION['user_id']);
-if ($isNotAuthorized) {
-    echo "Вы не авторизованы!";
-    exit;
-}
 $userId = $_SESSION['user_id'];
 
 require __DIR__ . '/../config/db.php';

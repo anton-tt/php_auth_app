@@ -29,7 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $_SESSION['user_id'] = $user['id'];
-    echo "Авторизация прошла успешно!";
+    
+    header("Location: /index.php?login=success");
     exit;
 }
 
