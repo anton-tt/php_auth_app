@@ -2,6 +2,8 @@
 
 require __DIR__ . '/../config/db.php';
 
+$error = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
     $phone = $_POST['phone'];
@@ -10,34 +12,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmPassword = $_POST['password_confirm'];
 
     if (empty($name) || empty($phone) || empty($email) || empty($password) || empty($confirmPassword)) {
-        echo "Все поля обязательны для заполнения!";
-        exit;
-    }
-    if ($password !== $confirmPassword) {
-        echo "Пароли не совпадают!";
-        exit;
-    }
+        $error = "Все поля обязательны для заполнения!";
+    } elseif ($password !== $confirmPassword) {
+        $error = "Пароли не совпадают!";
+    } else {
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM users WHERE email = ? OR phone = ?"
+        );
+        $stmt->execute([$email, $phone]);
+        $existingUser = $stmt->fetchColumn();
 
-    $stmt = $pdo->prepare(
-        "SELECT COUNT(*) FROM users WHERE email = ? OR phone = ?"
-    );
-    $stmt->execute([$email, $phone]);
-    $existingUser = $stmt->fetchColumn();
-    if ($existingUser > 0) {
-        echo "Пользователь с таким email или телефоном уже существует!";
-        exit;
-    }
+        if ($existingUser > 0) {
+            $error = "Пользователь с таким email или телефоном уже существует!";
+        } else {
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    $stmt = $pdo->prepare(
-        "INSERT INTO users (name, phone, email,  password) VALUES (?, ?, ?, ?)"
-    );
-    $stmt->execute([$name, $phone, $email, $hashedPassword]);
+            $stmt = $pdo->prepare(
+                "INSERT INTO users (name, phone, email,  password) VALUES (?, ?, ?, ?)"
+            );
+            $stmt->execute([$name, $phone, $email, $hashedPassword]);
     
-    header("Location: /index.php?register=success");
-    exit;   
-}
+            header("Location: /index.php?register=success");
+            exit;   
+        }
+    }
+}    
 
 ?>
 
@@ -50,6 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h2>Регистрация</h2>
+
+    <?php if ($error): ?>
+        <p>
+            <?= htmlspecialchars($error) ?>
+        </p>
+    <?php endif; ?>
+
     <form method="POST">
         <label for="name">Имя:</label>
         <input type="text" id="name" name="name" required><br><br>
