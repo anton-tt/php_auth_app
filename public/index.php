@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (isset($_GET['register']) && $_GET['register'] === 'success') {
+    echo "<p>Регистрация прошла успешно!</p>";
+}
+
+$isAuthorized = isset($_SESSION['user_id']);
 
 ?>
 
@@ -10,17 +17,24 @@
     <title>Главная страница</title>
 </head>
 <body>
-    <h1>Главная страница</h1>
-    <p>
-        <a href="login.php">Войти в профиль</a>
-    </p>
+    <h1>
+       <a href="index.php">Главная страница</a> 
+    </h1>
 
-    <p>
-        <a href="register.php">Регистрация нового пользователя</a>
-    </p>
-
-    <p>
-        <a href="profile.php">Посмотреть свой профиль</a>
-    </p>
+    <?php if (!$isAuthorized): ?>
+        <p>
+            <a href="register.php">Регистрация нового пользователя</a>
+        </p>
+        <p>
+            <a href="login.php">Войти в аккаунт</a>
+        </p>
+    <?php else: ?>
+        <p>
+            <a href="profile.php">Профиль пользователя</a>
+        </p>
+        <p>
+            <a href="logout.php">Выйти из аккаунта</a>
+        </p>
+    <?php endif; ?>
 </body>
 </html>

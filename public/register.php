@@ -18,12 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    
+
     $stmt = $pdo->prepare(
         "INSERT INTO users (name, phone, email,  password) VALUES (?, ?, ?, ?)"
     );
     $stmt->execute([$name, $phone, $email, $hashedPassword]);
-    echo "Данные сохранены!";
+    
+    header("Location: /index.php?register=success");
+    exit;
+   
 }
 
 ?>
