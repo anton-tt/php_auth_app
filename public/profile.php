@@ -22,11 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt = $pdo->prepare(
-            "SELECT id FROM users WHERE (email = ? OR phone = ?) AND id != ?"
+            "SELECT COUNT(*) FROM users WHERE (email = ? OR phone = ?) AND id != ?"
         );
         $stmt->execute([$email, $phone, $userId]);
-        $existingUser = $stmt->fetch();
-        if ($existingUser) {
+        $existingUser = $stmt->fetchColumn();
+        if ($existingUser > 0) {
             echo "Пользователь с таким email или телефоном уже существует!";
             exit;
         }

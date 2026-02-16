@@ -17,6 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Пароли не совпадают!";
         exit;
     }
+
+    $stmt = $pdo->prepare(
+        "SELECT COUNT(*) FROM users WHERE email = ? OR phone = ?"
+    );
+    $stmt->execute([$email, $phone]);
+    $existingUser = $stmt->fetchColumn();
+    if ($existingUser > 0) {
+        echo "Пользователь с таким email или телефоном уже существует!";
+        exit;
+    }
+
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     $stmt = $pdo->prepare(
@@ -25,8 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$name, $phone, $email, $hashedPassword]);
     
     header("Location: /index.php?register=success");
-    exit;
-   
+    exit;   
 }
 
 ?>
