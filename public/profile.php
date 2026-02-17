@@ -1,73 +1,73 @@
 <?php 
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+    header("Location: /index.php");
+    exit;
+}
 $userId = $_SESSION['user_id'];
 
 require __DIR__ . '/../config/db.php';
 
+$error = null;
+$message = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     if (isset($_POST['update_profile'])) {
         $name = $_POST['name'];
         $phone = $_POST['phone'];
         $email = $_POST['email'];
 
         if (empty($name) || empty($phone) || empty($email)) {
-            echo "Все поля обязательны для заполнения!";
-            exit;
+            $error = "Все поля обязательны для заполнения!";
+        } else {
+            $stmt = $pdo->prepare(
+                "SELECT COUNT(*) FROM users WHERE (email = ? OR phone = ?) AND id != ?"
+            );
+            $stmt->execute([$email, $phone, $userId]);
+            $existingUser = $stmt->fetchColumn();
+
+            if ($existingUser > 0) {
+                $error = "Пользователь с таким email или телефоном уже существует!";
+            } else {
+                $stmt = $pdo->prepare(
+                    "UPDATE users SET name = ?, phone = ?, email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+                );
+                $stmt->execute([$name, $phone, $email, $userId]);
+                $message = "Данные сохранены!";
+            }
         }
+    }        
 
-        $stmt = $pdo->prepare(
-            "SELECT COUNT(*) FROM users WHERE (email = ? OR phone = ?) AND id != ?"
-        );
-        $stmt->execute([$email, $phone, $userId]);
-        $existingUser = $stmt->fetchColumn();
-        if ($existingUser > 0) {
-            echo "Пользователь с таким email или телефоном уже существует!";
-            exit;
-        }
-
-        $stmt = $pdo->prepare(
-            "UPDATE users SET name = ?, phone = ?, email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
-        );
-        $stmt->execute([$name, $phone, $email, $userId]);
-        echo "Данные сохранены!";
-    }
-
-    if (isset($_POST['update_password'])) {
+    elseif (isset($_POST['update_password'])) {
         $currentPassword = $_POST['current_password'];
         $newPassword = $_POST['new_password'];
         $confirmPassword = $_POST['confirm_new_password']; 
 
         if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-            echo "Все поля обязательны для заполнения!";
-            exit;
+            $error = "Все поля обязательны для заполнения!";
+        } elseif ($newPassword !== $confirmPassword) {
+            $error = "Пароли не совпадают!";
+        } else {
+            $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+            $stmt->execute([$userId]);
+            $user = $stmt->fetch();
+            
+            if (!$user) {
+                $error = "Пользователь не найден!";
+            } elseif (!password_verify($currentPassword, $user['password'])) {
+                $error = "Неверно введён действующий пароль!";
+            } else {
+                $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare(
+                    "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+                );
+                $stmt->execute([$hashedNewPassword, $userId]);
+                $message = "Пароль успешно изменён!";
+            }
         }
-
-        if ($newPassword !== $confirmPassword) {
-            echo "Пароли не совпадают!";
-            exit;
-        }
-
-        $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch();
-        if (!$user) {
-            echo "Пользователь не найден!";
-            exit;
-        }
-        if (!password_verify($currentPassword, $user['password'])) {
-            echo "Неверно введён действующий пароль!";
-            exit;
-        }
-        $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-        $stmt = $pdo->prepare(
-            "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
-        );
-        $stmt->execute([$hashedNewPassword, $userId]);
-        echo "Пароль успешно изменён!";
-
-    }
+    }    
 }
 
 $stmt = $pdo->prepare(
@@ -77,13 +77,12 @@ $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
 if (!$user) {
-    echo "Пользователь не найден!";
-    exit;
+    $error = "Пользователь не найден!";
+} else {
+    $name = $user['name'];
+    $phone = $user['phone'];
+    $email = $user['email'];
 }
-
-$name = $user['name'];
-$phone = $user['phone'];
-$email = $user['email'];
 ?>
 
 <!DOCTYPE html>
@@ -95,7 +94,17 @@ $email = $user['email'];
 </head>
 <body>
     <h2>Профиль пользователя</h2>
-    
+
+    <?php if ($error): ?>
+        <p>
+            <?= htmlspecialchars($error) ?>
+        </p>
+    <?php elseif ($message): ?>
+        <p>
+            <?= htmlspecialchars($message) ?>
+        </p>
+    <?php endif; ?>
+
     <h3>Личные данные</h3>
     <form method="POST">
         <label for="name">Имя:</label>
