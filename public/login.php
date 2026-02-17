@@ -4,10 +4,11 @@ session_start();
 require __DIR__ . '/../config/db.php';
 
 $error = null;
+$login = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $login = $_POST['login'];
-    $password = $_POST['password'];
+    $login = trim($_POST['login'] ?? '');
+    $password = $_POST['password'] ?? '';
 
     if (empty($login) || empty($password)) {
         $error = "Все поля обязательны для заполнения!";
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!password_verify($password, $user['password'])) {
             $error = "Неверный пароль!";
         } else {
-            session_regenerate_id();
+            session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
             header("Location: /index.php?login=success");
             exit;
@@ -68,7 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
    <form method="POST">
         <label for="login">Телефон или эл.почта:</label>
-        <input type="text" id="login" name="login" required><br><br>
+        <input type="text" id="login" name="login" value="<?= htmlspecialchars($login) ?>" 
+            placeholder="ivan@mail.com или +71234567890"  required><br><br>
 
         <label for="password">Пароль:</label>
         <input type="password" id="password" name="password" required><br><br>
