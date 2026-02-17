@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             placeholder="ivan@mail.com или +71234567890"  required><br><br>
 
         <label for="password">Пароль:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <input type="password" id="password" name="password" placeholder="******" required><br><br>
 
         <div class="g-recaptcha" data-sitekey="6LcMV24sAAAAADwjZXV0a62U-i-yAAkZxE-JOfBO"></div>
         <button type="submit">Войти</button>

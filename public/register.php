@@ -71,10 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="ivan@mail.com" required><br><br>
 
         <label for="password">Пароль:</label>
-        <input type="password" id="password" name="password" placeholder="Минимум 6 символов" required><br><br>
+        <input type="password" id="password" name="password" placeholder="******" required><br><br>
 
         <label for="password_confirm">Повторите пароль:</label>
-        <input type="password" id="password_confirm" name="password_confirm" placeholder="Минимум 6 символов" required><br><br>
+        <input type="password" id="password_confirm" name="password_confirm" placeholder="******" required><br><br>
 
         <button type="submit">Зарегистрироваться</button>
     </form>

@@ -12,12 +12,19 @@ require __DIR__ . '/../config/db.php';
 $error = null;
 $message = null;
 
+$name ='';
+$phone = '';
+$email = '';
+$currentPassword = '';
+$newPassword = '';
+$confirmPassword = ''; 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['update_profile'])) {
-        $name = $_POST['name'];
-        $phone = $_POST['phone'];
-        $email = $_POST['email'];
+        $name = trim($_POST['name'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $email = trim($_POST['email'] ?? '');
 
         if (empty($name) || empty($phone) || empty($email)) {
             $error = "Все поля обязательны для заполнения!";
@@ -109,15 +116,15 @@ if (!$user) {
     <form method="POST">
         <label for="name">Имя:</label>
         <input type="text" id="name" name="name" 
-            value="<?= htmlspecialchars($name) ?>" required><br><br>
+            value="<?= htmlspecialchars($name) ?>" placeholder="Иван" required><br><br>
 
         <label for="phone">Телефон:</label>
         <input type="text" id="phone" name="phone" 
-            value="<?= htmlspecialchars($phone) ?>" required><br><br>
+            value="<?= htmlspecialchars($phone) ?>" placeholder="+71234567890" required><br><br>
 
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" 
-            value="<?= htmlspecialchars($email) ?>" required><br><br>
+            value="<?= htmlspecialchars($email) ?>" placeholder="ivan@mail.com" required><br><br>
 
         <button type="submit" name="update_profile">Сохранить данные</button>
     </form>
@@ -125,13 +132,13 @@ if (!$user) {
     <h3>Пароль</h3>
     <form method="POST">
         <label for="current_password">Текущий пароль:</label>
-        <input type="password" id="current_password" name="current_password" required><br><br>
+        <input type="password" id="current_password" name="current_password" placeholder="******" required><br><br>
 
         <label for="new_password">Новый пароль:</label>
-        <input type="password" id="new_password" name="new_password" required><br><br>
+        <input type="password" id="new_password" name="new_password" placeholder="******" required><br><br>
 
         <label for="confirm_new_password">Повтор нового пароля:</label>
-        <input type="password" id="confirm_new_password" name="confirm_new_password" required><br><br>
+        <input type="password" id="confirm_new_password" name="confirm_new_password" placeholder="******" required><br><br>
 
         <button type="submit" name="update_password">Сохранить пароль</button>
     </form>
