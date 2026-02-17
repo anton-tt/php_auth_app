@@ -4,12 +4,16 @@ require __DIR__ . '/../config/db.php';
 
 $error = null;
 
+$name = '';
+$phone = '';
+$email = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
-    $phone = $_POST['phone'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $confirmPassword = $_POST['password_confirm'];
+    $name = trim($_POST['name'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['password_confirm'] ?? '';
 
     if (empty($name) || empty($phone) || empty($email) || empty($password) || empty($confirmPassword)) {
         $error = "Все поля обязательны для заполнения!";
@@ -58,19 +62,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form method="POST">
         <label for="name">Имя:</label>
-        <input type="text" id="name" name="name" required><br><br>
+        <input type="text" id="name" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Иван" required><br><br>
 
         <label for="phone">Телефон:</label>
-        <input type="text" id="phone" name="phone" required><br><br>
+        <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($phone) ?>" placeholder="+71234567890" required><br><br>
 
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
+        <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="ivan@mail.com" required><br><br>
 
         <label for="password">Пароль:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <input type="password" id="password" name="password" placeholder="Минимум 6 символов" required><br><br>
 
         <label for="password_confirm">Повторите пароль:</label>
-        <input type="password" id="password_confirm" name="password_confirm" required><br><br>
+        <input type="password" id="password_confirm" name="password_confirm" placeholder="Минимум 6 символов" required><br><br>
 
         <button type="submit">Зарегистрироваться</button>
     </form>
