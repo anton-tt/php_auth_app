@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['password_confirm'] ?? '';
+    $password = $_POST['password'];
+    $confirmPassword = $_POST['password_confirm'];
 
     if (empty($name) || empty($phone) || empty($email) || empty($password) || empty($confirmPassword)) {
         $errors[] = "Все поля обязательны для заполнения!";

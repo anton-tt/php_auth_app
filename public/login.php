@@ -9,7 +9,7 @@ $login = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = trim($_POST['login'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $password = $_POST['password'];
 
     if (empty($login) || empty($password)) {
         $errors[] = "Все поля обязательны для заполнения!";
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    
+
     if (empty($errors)) {
         $stmt = $pdo->prepare(
             "SELECT * FROM users WHERE email = ? OR phone = ?"
