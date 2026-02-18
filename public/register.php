@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../config/db.php';
 
-$error = null;
+$errors = [];
 
 $name = '';
 $phone = '';
@@ -16,10 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmPassword = $_POST['password_confirm'] ?? '';
 
     if (empty($name) || empty($phone) || empty($email) || empty($password) || empty($confirmPassword)) {
-        $error = "Все поля обязательны для заполнения!";
-    } elseif ($password !== $confirmPassword) {
-        $error = "Пароли не совпадают!";
-    } else {
+        $errors[] = "Все поля обязательны для заполнения!";
+    }
+
+    if ($password !== $confirmPassword) {
+        $errors[] = "Пароли не совпадают!";
+    }
+
+    if (empty($errors)) {    
         $stmt = $pdo->prepare(
             "SELECT COUNT(*) FROM users WHERE email = ? OR phone = ?"
         );
@@ -27,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existingUser = $stmt->fetchColumn();
 
         if ($existingUser > 0) {
-            $error = "Пользователь с таким email или телефоном уже существует!";
+            $errors[] = "Пользователь с таким email или телефоном уже существует!";
         } else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
@@ -54,21 +58,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <h2>Регистрация</h2>
 
-    <?php if ($error): ?>
-        <p>
-            <?= htmlspecialchars($error) ?>
-        </p>
+    <?php if (!empty($errors)): ?>
+        <?php foreach ($errors as $error): ?>
+            <p><?= htmlspecialchars($error) ?></p>
+        <?php endforeach; ?>
+    </ul>
     <?php endif; ?>
 
     <form method="POST">
         <label for="name">Имя:</label>
-        <input type="text" id="name" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Иван" required><br><br>
+        <input type="text" id="name" name="name" value="<?= htmlspecialchars($name) ?>" 
+            placeholder="Иван" required><br><br>
 
         <label for="phone">Телефон:</label>
-        <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($phone) ?>" placeholder="+71234567890" required><br><br>
+        <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($phone) ?>" 
+            placeholder="+71234567890" required><br><br>
 
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="ivan@mail.com" required><br><br>
+        <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" 
+            placeholder="ivan@mail.com" required><br><br>
 
         <label for="password">Пароль:</label>
         <input type="password" id="password" name="password" placeholder="******" required><br><br>
