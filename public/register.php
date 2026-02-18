@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php foreach ($errors as $error): ?>
             <p><?= htmlspecialchars($error) ?></p>
         <?php endforeach; ?>
-    </ul>
     <?php endif; ?>
 
     <form method="POST">

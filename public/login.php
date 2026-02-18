@@ -3,7 +3,8 @@ session_start();
 
 require __DIR__ . '/../config/db.php';
 
-$error = null;
+$errors = [];
+
 $login = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -11,24 +12,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if (empty($login) || empty($password)) {
-        $error = "Все поля обязательны для заполнения!";
-    } else {
+        $errors[] = "Все поля обязательны для заполнения!";
+    }
+
+    if (empty($errors)) {
         $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
-            if (empty($recaptchaResponse)) {
-                $error = "Подтвердите, что вы не робот!";
-            } else {
-                $secretKey = '6LcMV24sAAAAAOdGZucfgEXiOjNLL1GoTsJ2FVkS';
-                $verify = file_get_contents(
+        if (empty($recaptchaResponse)) {
+            $errors[] = "Подтвердите, что вы не робот!";
+        } else {
+            $secretKey = '6LcMV24sAAAAAOdGZucfgEXiOjNLL1GoTsJ2FVkS';
+            $verify = file_get_contents(
                 "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}"
             );
             $captchaSuccess = json_decode($verify);
             if (!$captchaSuccess->success) {
-                $error = "Возникла ошибка при проверке капчи!";
+                $errors[] = "Возникла ошибка при проверке капчи!";
             }
         }
     }
-
-    if (!$error) {
+    
+    if (empty($errors)) {
         $stmt = $pdo->prepare(
             "SELECT * FROM users WHERE email = ? OR phone = ?"
         );
@@ -36,9 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if (!$user) {
-            $error = "Пользователь с таким логином не найден!";
+            $errors[] = "Пользователь с таким логином не найден!";
         } elseif (!password_verify($password, $user['password'])) {
-            $error = "Неверный пароль!";
+            $errors[] = "Неверный пароль!";
         } else {
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
@@ -61,10 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
    <h2>Вход</h2>
 
-    <?php if ($error): ?>
-        <p>
-            <?= htmlspecialchars($error) ?>
-        </p>
+    <?php if (!empty($errors)): ?>
+        <?php foreach ($errors as $error): ?>
+            <p><?= htmlspecialchars($error) ?></p>
+        <?php endforeach; ?>
     <?php endif; ?>
 
    <form method="POST">
